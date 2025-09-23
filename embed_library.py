@@ -94,11 +94,21 @@ def make_chunks(text: str, max_chars: int = 2000):
     def is_buffer_within_limits(additional_length: int) -> bool:
         return paragraph_buffer_length + additional_length <= max_chars
     
-    def append_content_from_buffer_to_chunk() -> int:
+    def append_content_from_buffer_to_chunk(window_size: int = 200) -> int:
+        nonlocal cursor, paragraph_buffer, paragraph_buffer_length
+
         chunked_paragraph = paragraph_separator.join(paragraph_buffer)
         start = cursor
         end = start + len(chunked_paragraph)
-        chunks.append((start, end, chunked_paragraph))
+
+        # Window Overlap
+        window_start = max(start - window_size, 0)
+        chunk_text = text[window_start:end]
+        chunks.append((window_start, end, chunk_text))
+
+        cursor = end + paragraph_separator_length
+
+        paragraph_buffer, paragraph_buffer_length = [], 0
         return end
     
     def add_paragraph_to_buffer(paragraph: str, additional_length: int):
@@ -112,8 +122,7 @@ def make_chunks(text: str, max_chars: int = 2000):
         if is_buffer_within_limits(additional_length):
             add_paragraph_to_buffer(paragraph, additional_length)
         else:
-            end = append_content_from_buffer_to_chunk()
-            cursor = end + paragraph_separator_length
+            append_content_from_buffer_to_chunk()
             paragraph_buffer, paragraph_buffer_length = [paragraph], len(paragraph)
     
     # If there is anything left in the buffer, append it to the chunk list
