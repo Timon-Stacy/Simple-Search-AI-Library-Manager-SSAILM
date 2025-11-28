@@ -1,0 +1,168 @@
+﻿<Window x:Class="SemanticLibrary.Wpf.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SemanticLibrary.Wpf"
+        mc:Ignorable="d"
+        Title="Settings"
+        Height="320"
+        Width="520"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner"
+        Loaded="SettingsWindow_Loaded">
+
+    <Grid Margin="12">
+        <!--
+            Rows 0-6 : form fields
+            Row  7   : flexible spacer
+            Row  8   : buttons
+        -->
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <!-- Python Path -->
+            <RowDefinition Height="Auto"/>
+            <!-- TopK -->
+            <RowDefinition Height="Auto"/>
+            <!-- MinCos -->
+            <RowDefinition Height="Auto"/>
+            <!-- FetchK -->
+            <RowDefinition Height="Auto"/>
+            <!-- Model -->
+            <RowDefinition Height="Auto"/>
+            <!-- Database -->
+            <RowDefinition Height="Auto"/>
+            <!-- Index -->
+            <RowDefinition Height="*"/>
+            <!-- spacer -->
+            <RowDefinition Height="Auto"/>
+            <!-- buttons -->
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="120"/>
+            <!-- labels -->
+            <ColumnDefinition Width="*"/>
+            <!-- text boxes -->
+            <ColumnDefinition Width="Auto"/>
+            <!-- browse buttons -->
+        </Grid.ColumnDefinitions>
+
+        <!-- Python Path -->
+        <Label Grid.Row="0" Grid.Column="0"
+               Content="Python Path"
+               VerticalAlignment="Center"/>
+
+        <TextBox x:Name="PythonPathTextBox"
+                 Grid.Row="0" Grid.Column="1"
+                 Margin="0,2,5,2"
+                 IsReadOnly="True"/>
+
+        <Button x:Name="SelectPythonButton"
+                Grid.Row="0" Grid.Column="2"
+                Margin="0,2,0,2"
+                Padding="10,2"
+                Content="Browse"
+                Click="SelectPythonButton_Click"/>
+
+        <!-- Top K -->
+        <Label Grid.Row="1" Grid.Column="0"
+               Content="Top K"
+               VerticalAlignment="Center"/>
+
+        <TextBox x:Name="TopKTextBox"
+                 Grid.Row="1" Grid.Column="1"
+                 Width="80"
+                 Margin="0,2,0,2"
+                 PreviewTextInput="NumericOnly"
+                 Text="5"
+                 HorizontalAlignment="Left"/>
+
+        <!-- Min Score -->
+        <Label Grid.Row="2" Grid.Column="0"
+               Content="Min Score"
+               VerticalAlignment="Center"/>
+
+        <TextBox x:Name="MinCosTextBox"
+                 Grid.Row="2" Grid.Column="1"
+                 Width="80"
+                 Margin="0,2,0,2"
+                 PreviewTextInput="NumericOnly"
+                 Text="-1.0"
+                 HorizontalAlignment="Left"/>
+
+        <!-- Fetch K -->
+        <Label Grid.Row="3" Grid.Column="0"
+               Content="Fetch K"
+               VerticalAlignment="Center"/>
+
+        <TextBox x:Name="FetchKTextBox"
+                 Grid.Row="3" Grid.Column="1"
+                 Width="80"
+                 Margin="0,2,0,2"
+                 PreviewTextInput="NumericOnly"
+                 Text="200"
+                 TextChanged="FetchKTextBox_TextChanged"
+                 HorizontalAlignment="Left"/>
+
+        <!-- Model -->
+        <Label Grid.Row="4" Grid.Column="0"
+               Content="Model"
+               VerticalAlignment="Center"/>
+
+        <TextBox x:Name="ModelTextBox"
+                 Grid.Row="4" Grid.Column="1"
+                 Margin="0,2,0,2"
+                 MinWidth="260"
+                 Text="sentence-transformers/all-MiniLM-L6-v2"/>
+
+        <!-- Database -->
+        <Label Grid.Row="5" Grid.Column="0"
+               Content="Database"
+               VerticalAlignment="Center"/>
+
+        <TextBox x:Name="DatabasePathTextBox"
+                 Grid.Row="5" Grid.Column="1"
+                 Margin="0,2,5,2"
+                 IsReadOnly="True"/>
+
+        <Button x:Name="SelectDatabseButton"
+                Grid.Row="5" Grid.Column="2"
+                Margin="0,2,0,2"
+                Padding="10,2"
+                Content="Browse"
+                Click="SelectDatabseButton_Click"/>
+
+        <!-- Index -->
+        <Label Grid.Row="6" Grid.Column="0"
+               Content="Index"
+               VerticalAlignment="Center"/>
+
+        <TextBox x:Name="IndexPathTextBox"
+                 Grid.Row="6" Grid.Column="1"
+                 Margin="0,2,5,2"
+                 IsReadOnly="True"/>
+
+        <Button x:Name="SelectIndexButton"
+                Grid.Row="6" Grid.Column="2"
+                Margin="0,2,0,2"
+                Padding="10,2"
+                Content="Browse"
+                Click="SelectIndexButton_Click"/>
+
+        <!-- Bottom buttons -->
+        <StackPanel Grid.Row="8"
+                    Grid.ColumnSpan="3"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Margin="0,10,0,0">
+            <Button x:Name="OkButton"
+                    Width="90"
+                    Height="26"
+                    Margin="0,0,0,0"
+                    Content="Accept"
+                    IsDefault="True"
+                    Click="OkButton_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

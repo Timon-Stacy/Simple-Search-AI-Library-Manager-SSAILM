@@ -1,0 +1,84 @@
+﻿<Window x:Class="SemanticLibrary.Wpf.DownloadWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SemanticLibrary.Wpf"
+        mc:Ignorable="d"
+        Title="Download"
+        Height="360"
+        Width="720"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner">
+
+    <Grid Margin="10">
+        <!-- Row 0: DataGrid
+             Row 1: buttons / progress -->
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Main download grid -->
+        <DataGrid x:Name="DownloadDataGrid"
+                  Grid.Row="0"
+                  Margin="0,0,0,8"
+                  AutoGenerateColumns="False"
+                  CanUserAddRows="True"
+                  CanUserDeleteRows="True"
+                  IsReadOnly="False">
+
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Author"
+                                    Binding="{Binding Author}"
+                                    Width="2*"/>
+
+                <DataGridTextColumn Header="Title"
+                                    Binding="{Binding Title}"
+                                    Width="3*"/>
+
+                <DataGridTextColumn Header="Category"
+                                    Binding="{Binding Category}"
+                                    Width="2*"/>
+
+                <DataGridTextColumn Header="URL"
+                                    Binding="{Binding Url}"
+                                    Width="3*"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Bottom bar -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Left: Start + progress -->
+            <StackPanel Orientation="Horizontal"
+                        Grid.Column="0"
+                        HorizontalAlignment="Left">
+
+                <Button x:Name="StartButton"
+                        Content="Start"
+                        Width="70"
+                        Margin="0,0,10,0"
+                        Click="StartButton_Click"/>
+
+                <ProgressBar x:Name="DownloadProgressBar"
+                             Width="150"
+                             Height="12"
+                             IsIndeterminate="True"
+                             Visibility="Hidden"/>
+            </StackPanel>
+
+            <!-- Right: Import button -->
+            <Button x:Name="ImportButton"
+                    Grid.Column="1"
+                    Content="Import From List"
+                    Padding="10,2"
+                    HorizontalAlignment="Right"
+                    Click="ImportButton_Click"/>
+        </Grid>
+    </Grid>
+</Window>
