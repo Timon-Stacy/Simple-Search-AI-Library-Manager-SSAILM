@@ -9,37 +9,10 @@ import sys, json
 import functools, builtins
 import re
 import shutil
+import argparse
 print = functools.partial(builtins.print, flush=True)
 
-DB_PATH = r"Z:\Programming\AILibrary\library.db"
-connection = sqlite3.connect(DB_PATH)
-cursor = connection.cursor()
-cursor.executescript("""
-CREATE TABLE IF NOT EXISTS books (
-  id            INTEGER PRIMARY KEY,
-  gutenberg_id  INTEGER UNIQUE,
-  ia_title_id   TEXT UNIQUE,
-  gb_title_id   TEXT UNIQUE,
-  author        TEXT,
-  title         TEXT,
-  category      TEXT,
-  source_url    TEXT,
-  content       TEXT
-);
-
-CREATE UNIQUE INDEX IF NOT EXISTS idx_gutenberg
-ON books(gutenberg_id)
-WHERE gutenberg_id IS NOT NULL;
-
-CREATE UNIQUE INDEX IF NOT EXISTS idx_archive
-ON books(ia_title_id)
-WHERE ia_title_id IS NOT NULL;
-
-CREATE UNIQUE INDEX IF NOT EXISTS idx_google
-ON books(gb_title_id)
-WHERE gb_title_id IS NOT NULL;
-""")
-connection.commit()
+DB_PATH_DEFAULT = "library.db"
 
 headers = {"User-Agent": "MVP-Library/0.1 (+no email)"}
 
@@ -133,9 +106,9 @@ def extract_gb_pdf(meta):
         gb_pdf = requests.get(download_url, timeout=60, headers=headers)
         print(f"PDF status {gb_pdf.status_code}, length {len(gb_pdf.content)} bytes")
 
-        # Heuristic: tiny “PDFs” are usually error/captcha pages
+        # Heuristic: tiny PDFs are usually error/captcha pages
         if gb_pdf.status_code != 200 or len(gb_pdf.content) < 50000:
-            print("Likely CAPTCHA or error page from Google – skipping.")
+            print("Likely CAPTCHA or error page from Google - skipping.")
             return None, None
     except requests.RequestException as e:
         print(f"PDF download error: {e}")
@@ -160,12 +133,6 @@ def download_gb_text(gb_id: str, api_key: str | None = None):
 
     return extract_gb_pdf(r.json())
 
-data = json.loads(sys.stdin.read())
-
-gutenberg_books = []
-ia_books = []
-gb_books = []
-
 def get_gutenberg_id(url: str) -> int | None:
     if "/ebooks/" not in url:
         return None
@@ -189,6 +156,50 @@ def get_google_id(url: str) -> str | None:
             return match.group(1)
 
     return None
+
+# Parse arguments
+ap = argparse.ArgumentParser(description="Download books from various sources into SQLite database.")
+ap.add_argument("--db", default=DB_PATH_DEFAULT, help="Path to SQLite database (default: library.db)")
+ap.add_argument("--api-key", default=None, help="Optional Google Books API key")
+args = ap.parse_args()
+
+DB_PATH = args.db
+api_key = args.api_key
+
+connection = sqlite3.connect(DB_PATH)
+cursor = connection.cursor()
+cursor.executescript("""
+CREATE TABLE IF NOT EXISTS books (
+  id            INTEGER PRIMARY KEY,
+  gutenberg_id  INTEGER UNIQUE,
+  ia_title_id   TEXT UNIQUE,
+  gb_title_id   TEXT UNIQUE,
+  author        TEXT,
+  title         TEXT,
+  category      TEXT,
+  source_url    TEXT,
+  content       TEXT
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_gutenberg
+ON books(gutenberg_id)
+WHERE gutenberg_id IS NOT NULL;
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_archive
+ON books(ia_title_id)
+WHERE ia_title_id IS NOT NULL;
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_google
+ON books(gb_title_id)
+WHERE gb_title_id IS NOT NULL;
+""")
+connection.commit()
+
+data = json.loads(sys.stdin.read())
+
+gutenberg_books = []
+ia_books = []
+gb_books = []
 
 for item in data:
     lower = {k.lower(): v for k, v in item.items()}
@@ -263,7 +274,7 @@ while gb_books:
     title_id, user_title, author, category = gb_books.pop(0)
     print(f"Downloading {title_id}...", end="")
     safe_id = quote(title_id, safe="")
-    text, url = download_gb_text(safe_id)
+    text, url = download_gb_text(safe_id, api_key=api_key)
     if text:
         cursor.execute("""
             INSERT INTO books (gb_title_id, author, title, category, source_url, content)
