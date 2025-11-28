@@ -67,6 +67,7 @@ namespace SemanticLibrary.Wpf
                     });
 
                 MessageBox.Show("Download finished.");
+                this.DialogResult = true;
             }
             catch (Exception ex)
             {
@@ -75,7 +76,6 @@ namespace SemanticLibrary.Wpf
             finally
             {
                 DownloadProgressBar.Visibility = Visibility.Hidden;
-                this.Close(); // optional
             }
         }
 

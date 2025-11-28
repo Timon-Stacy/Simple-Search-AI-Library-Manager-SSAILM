@@ -223,7 +223,12 @@ namespace SemanticLibrary.Wpf
             {
                 Owner = this
             };
-            download.ShowDialog();
+            
+            if (download.ShowDialog() == true)
+            {
+                var table = Utilities.LoadData(_databasePath);
+                LibraryDataGrid.ItemsSource = table?.DefaultView;
+            }
         }
     }
 }
