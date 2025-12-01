@@ -44,6 +44,13 @@
                     Margin="0,0,10,0"
                     Click="SearchButton_Click"/>
 
+            <!-- Added Semantic Search Toggle -->
+            <CheckBox x:Name="SemanticSearchCheckBox"
+                      Content="Semantic Search"
+                      IsChecked="True"
+                      VerticalAlignment="Center"
+                      Margin="0,0,10,0" Checked="SemanticSearchCheckBox_Checked"/>
+
             <ProgressBar x:Name="SearchProgressBar"
                          Width="100"
                          Height="14"

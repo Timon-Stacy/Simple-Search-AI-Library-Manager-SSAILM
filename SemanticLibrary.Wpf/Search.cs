@@ -22,7 +22,8 @@ namespace AILibrary
             int fetchK,
             string model,
             string db,
-            string index)
+            string index,
+            bool semanticSearch)
         {
             try
             {
@@ -46,7 +47,8 @@ namespace AILibrary
                         $"--fetch_k {fetchK} " +
                         $"--model_name {quotedModel} " +
                         $"--db {quotedDb} " +
-                        $"--index {quotedIndex}",
+                        $"--index {quotedIndex}" +
+                        $"--literal {semanticSearch}",
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                     UseShellExecute = false,

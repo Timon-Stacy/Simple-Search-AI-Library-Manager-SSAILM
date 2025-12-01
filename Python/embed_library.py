@@ -91,6 +91,75 @@ def ensure_schema(conn: sqlite3.Connection):
     """)
     conn.commit()
 
+def setup_fts5(conn: sqlite3.Connection):
+    """
+    Create FTS5 virtual table for fast full-text search.
+    Only creates if it doesn't already exist.
+    """
+    try:
+        cur = conn.cursor()
+        
+        # Check if FTS table already exists
+        cur.execute("""
+            SELECT name FROM sqlite_master 
+            WHERE type='table' AND name='chunks_fts'
+        """)
+        
+        if cur.fetchone() is not None:
+            log("FTS5 table already exists, checking if it needs updating...")
+            # Rebuild FTS index with any new chunks
+            cur.execute("""
+                INSERT OR IGNORE INTO chunks_fts(rowid, text) 
+                SELECT id, text FROM chunks
+                WHERE id NOT IN (SELECT rowid FROM chunks_fts)
+            """)
+            conn.commit()
+            log("FTS5 index updated with new chunks.")
+            return
+        
+        log("Creating FTS5 full-text search index...")
+        
+        # Create FTS5 virtual table
+        cur.execute("""
+            CREATE VIRTUAL TABLE chunks_fts USING fts5(
+                text,
+                content=chunks,
+                content_rowid=id
+            )
+        """)
+        
+        # Populate with existing data
+        cur.execute("""
+            INSERT INTO chunks_fts(rowid, text) 
+            SELECT id, text FROM chunks
+        """)
+        
+        # Create triggers to keep FTS in sync
+        cur.execute("""
+            CREATE TRIGGER IF NOT EXISTS chunks_ai AFTER INSERT ON chunks BEGIN
+                INSERT INTO chunks_fts(rowid, text) VALUES (new.id, new.text);
+            END
+        """)
+        
+        cur.execute("""
+            CREATE TRIGGER IF NOT EXISTS chunks_ad AFTER DELETE ON chunks BEGIN
+                DELETE FROM chunks_fts WHERE rowid = old.id;
+            END
+        """)
+        
+        cur.execute("""
+            CREATE TRIGGER IF NOT EXISTS chunks_au AFTER UPDATE ON chunks BEGIN
+                UPDATE chunks_fts SET text = new.text WHERE rowid = old.id;
+            END
+        """)
+        
+        conn.commit()
+        log("FTS5 full-text search index created successfully!")
+        
+    except Exception as e:
+        log(f"Error setting up FTS5: {e}")
+        conn.rollback()
+
 # Database IO
 def load_books(conn: sqlite3.Connection) -> List[Book]:
     cur = conn.cursor()
@@ -355,6 +424,9 @@ def main():
 
     log("== Chunk phase ==")
     prepare_chunks(conn, max_chars=args.max_chars)
+
+    log("== FTS5 Setup ==")
+    setup_fts5(conn)
 
     log("\n== Embed phase ==")
     embed_new_chunks(conn,

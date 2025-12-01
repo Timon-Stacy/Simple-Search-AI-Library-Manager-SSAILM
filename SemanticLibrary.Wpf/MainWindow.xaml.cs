@@ -30,6 +30,7 @@ namespace SemanticLibrary.Wpf
         private double _minCosine = -1.0;
         private int _fetchK = 200;
         private string _query = "";
+        private bool _semanticSearch = false;
 
         public MainWindow()
         {
@@ -42,6 +43,7 @@ namespace SemanticLibrary.Wpf
             _topK = 5;
             _minCosine = -1.0;
             _fetchK = 200;
+            _semanticSearch = SemanticSearchCheckBox.IsChecked == true;
 
             try
             {
@@ -100,7 +102,8 @@ namespace SemanticLibrary.Wpf
                     _fetchK,
                     _model,
                     _databasePath,
-                    _indexPath));
+                    _indexPath,
+                    _semanticSearch));
                 ResultsDataGrid.ItemsSource = _results;
             }
             catch (Exception ex)
@@ -229,6 +232,11 @@ namespace SemanticLibrary.Wpf
                 var table = Utilities.LoadData(_databasePath);
                 LibraryDataGrid.ItemsSource = table?.DefaultView;
             }
+        }
+
+        private void SemanticSearchCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            _semanticSearch = SemanticSearchCheckBox.IsChecked == true;
         }
     }
 }
